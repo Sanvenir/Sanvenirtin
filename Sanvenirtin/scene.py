@@ -176,7 +176,7 @@ class LocalMap(Maps):
                 scene.addItem(self.contents[x][y].rigid_body)
             elif not check2:
                 self.contents[x][y].rigid_body = character.NonePlayer(
-                    ("female", randrange(3)), scene, self.contents[x][y], [0], action_time=scene.current_time)
+                    (("female", "male", "others")[randrange(3)], randrange(3)), scene, self.contents[x][y], [0], action_time=scene.current_time)
                 scene.characters.append(self.contents[x][y].rigid_body)
                 scene.addItem(self.contents[x][y].rigid_body)
 

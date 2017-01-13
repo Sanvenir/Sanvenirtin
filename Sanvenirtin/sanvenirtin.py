@@ -31,6 +31,8 @@ def convert_resource():
 
 
 def load_resources():
+    if not os.path.exists("sav"):
+        os.mkdir("sav")
     graphics.Resources.ground_image = graphics.CombinePixmap("res//tiles//map//ground.png", 48, 48, 11)
     graphics.Resources.obstacle_image = graphics.CombinePixmap("res//tiles//map//obstacle//obstacle_1.png", 48, 48, 6)
     graphics.Resources.obstacle_images = {"forest_small": graphics.CombinePixmap("res//tiles//map//obstacle//forest_small.png", 48, 48, 6),
