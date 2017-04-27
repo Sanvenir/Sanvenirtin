@@ -1,32 +1,36 @@
 #!usr/bin/python3
 # -*-coding: utf-8 -*-
 
-from PySide import QtGui, QtCore
+from PyQt5.QtGui import QRadialGradient, QColor, QBrush, QPixmap, QPen
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsEllipseItem, QGraphicsPixmapItem, QGraphicsScene, QGraphicsView, \
+    QWidget
+from PyQt5.QtCore import QPropertyAnimation, QPointF, QRectF, QObject, Qt
 from configure import (WINDOWS_WIDTH, WINDOWS_HEIGHT, TILE_WIDTH, TILE_HEIGHT, ANIMATION_FRAME, ANIMATION_IMAGE_FRAME,
                        SCENE_WIDTH, SCENE_HEIGHT)
 
 camera_x = 0
 camera_y = 0
 
-gradient_001 = QtGui.QRadialGradient(20, 50, 500, 10, 50)
-gradient_001.setColorAt(0, QtGui.QColor(100, 100, 100))
-gradient_001.setColorAt(0.5, QtGui.QColor(255, 255, 0))
-gradient_001.setColorAt(1, QtGui.QColor(100, 100, 100))
-brush_001 = QtGui.QBrush(gradient_001)
+gradient_001 = QRadialGradient(20, 50, 500, 10, 50)
+gradient_001.setColorAt(0, QColor(100, 100, 100))
+gradient_001.setColorAt(0.5, QColor(255, 255, 0))
+gradient_001.setColorAt(1, QColor(100, 100, 100))
+brush_001 = QBrush(gradient_001)
 
-gradient_002 = QtGui.QRadialGradient(20, 50, 500, 10, 50)
-gradient_002.setColorAt(0, QtGui.QColor(100, 100, 100))
-gradient_002.setColorAt(0.5, QtGui.QColor(255, 0, 0))
-gradient_002.setColorAt(1, QtGui.QColor(100, 100, 100))
-brush_002 = QtGui.QBrush(gradient_002)
+gradient_002 = QRadialGradient(20, 50, 500, 10, 50)
+gradient_002.setColorAt(0, QColor(100, 100, 100))
+gradient_002.setColorAt(0.5, QColor(255, 0, 0))
+gradient_002.setColorAt(1, QColor(100, 100, 100))
+brush_002 = QBrush(gradient_002)
 
-gradient_003 = QtGui.QRadialGradient(20, 50, 500, 10, 50)
-gradient_003.setColorAt(0, QtGui.QColor(100, 100, 100))
-gradient_003.setColorAt(0.5, QtGui.QColor(0, 255, 0))
-gradient_003.setColorAt(1, QtGui.QColor(100, 100, 100))
-brush_003 = QtGui.QBrush(gradient_003)
+gradient_003 = QRadialGradient(20, 50, 500, 10, 50)
+gradient_003.setColorAt(0, QColor(100, 100, 100))
+gradient_003.setColorAt(0.5, QColor(0, 255, 0))
+gradient_003.setColorAt(1, QColor(100, 100, 100))
+brush_003 = QBrush(gradient_003)
 
 gradients = [gradient_001, gradient_002, gradient_003]
+
 
 class Resources(object):
     ground_image = None
@@ -42,7 +46,7 @@ class Resources(object):
 class CombinePixmap(object):
     def __init__(self, path, image_width, image_height, image_total, line_count=10):
         super().__init__()
-        image = QtGui.QPixmap(path)
+        image = QPixmap(path)
         self.path = path
         self.line_count = line_count
         self.image_width = image_width
@@ -58,7 +62,7 @@ class CombinePixmap(object):
         return self._images[identity]
 
 
-class DrawObject(QtGui.QGraphicsItem):
+class DrawObject(QGraphicsItem, QObject):
     def __init__(self, image, frames, centre_x=0.5, centre_y=0.5):
         super(DrawObject, self).__init__()
         self.current_frame = 0
@@ -75,7 +79,6 @@ class DrawObject(QtGui.QGraphicsItem):
         self.total_step = None
         self.previous_x = None
         self.previous_y = None
-        self.animation = None
 
         self.image_width = self.draw_image.image_width
         self.image_height = self.draw_image.image_height
@@ -92,9 +95,9 @@ class DrawObject(QtGui.QGraphicsItem):
             self._state = DrawObjectNotMoving
 
     def boundingRect(self):
-        return QtCore.QRectF(-self.centre_x * self.image_width,
-                             -self.centre_y * self.image_height,
-                             self.image_width, self.image_height)
+        return QRectF(-self.centre_x * self.image_width,
+                      -self.centre_y * self.image_height,
+                      self.image_width, self.image_height)
 
     def update(self):
         self.update_pos()
@@ -122,9 +125,7 @@ class DrawObject(QtGui.QGraphicsItem):
         self._state.update_pos(self)
 
     def animation_move(self, nx, ny, total_step=ANIMATION_FRAME):
-        self.animation = QtGui.QGraphicsItemAnimation()
-        self.animation.setItem(self)
-        self.animation.setPosAt(1, QtCore.QPointF(nx, ny))
+        # TODO: Refract the animation
         self.moving_step = 0
         self.total_step = total_step
         self.pos_x = nx
@@ -139,10 +140,8 @@ class DrawObjectMoving(DrawObject):
     @staticmethod
     def update_pos(conn):
         conn.moving_step += 1
-        conn.animation.setStep(conn.moving_step / conn.total_step)
         if conn.moving_step >= conn.total_step:
             conn.set_moving(False)
-            conn.animation = None
             conn.moving_step = None
             conn.total_step = None
 
@@ -150,10 +149,8 @@ class DrawObjectMoving(DrawObject):
     def initialize(conn, pos_x, pos_y):
         conn.setPos(pos_x * TILE_WIDTH - conn.pos_x + conn.pos().x(),
                     pos_y * TILE_HEIGHT - conn.pos_y + conn.pos().y())
-        conn.animation.setPosAt(0, conn.pos())
         conn.pos_x = pos_x * TILE_WIDTH
         conn.pos_y = pos_y * TILE_HEIGHT
-        conn.animation.setPosAt(1, QtCore.QPointF(conn.pos_x, conn.pos_y))
 
 
 class DrawObjectNotMoving(DrawObject):
@@ -169,7 +166,7 @@ class DrawObjectNotMoving(DrawObject):
         conn._image = conn.draw_image.get_image(conn.frames[0])
 
 
-class Shadow(QtGui.QGraphicsEllipseItem):
+class Shadow(QGraphicsEllipseItem):
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -177,11 +174,11 @@ class Shadow(QtGui.QGraphicsEllipseItem):
         self.setPos(-self.parentItem().rigid_size * TILE_WIDTH / 2, -self.parentItem().rigid_size * TILE_HEIGHT / 2)
         self.setFlag(self.ItemStacksBehindParent, True)
         self.setZValue(0)
-        self.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0, 0)))
-        self.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 100)))
+        self.setPen(QPen(QColor(0, 0, 0, 0)))
+        self.setBrush(QBrush(QColor(0, 0, 0, 100)))
 
 
-class Gradient(QtGui.QGraphicsPixmapItem):
+class Gradient(QGraphicsPixmapItem):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
@@ -202,22 +199,22 @@ class Gradient(QtGui.QGraphicsPixmapItem):
         super().paint(painter, option, widget)
 
 
-class GameScene(QtGui.QGraphicsScene):
+class GameScene(QGraphicsScene):
     """
     """
-    def __init__(self, parent=None, f=0):
-        super(GameScene, self).__init__(parent, f)
+    def __init__(self, parent=None):
+        super(GameScene, self).__init__(parent)
 
 
-class GameView(QtGui.QGraphicsView):
+class GameView(QGraphicsView):
     def __init__(self, scene, parent=None):
         super(GameView, self).__init__(scene, parent)
         self.setViewportUpdateMode(self.NoViewportUpdate)
         self.center = None
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.set_center(scene.player)
-        self.setBackgroundBrush(QtGui.QBrush(QtCore.Qt.black))
+        self.setBackgroundBrush(QBrush(Qt.black))
         self.setMouseTracking(True)
         self.show()
 
@@ -231,15 +228,15 @@ class GameView(QtGui.QGraphicsView):
         if self.center is not None:
             self.setSceneRect(self.center.x() - SCENE_WIDTH, self.center.y() - SCENE_HEIGHT,
                               SCENE_WIDTH << 1, SCENE_HEIGHT << 1)
-            self.centerOn(self.center.pos() + QtCore.QPointF(0, TILE_HEIGHT >> 1))
+            self.centerOn(self.center.pos() + QPointF(0, TILE_HEIGHT >> 1))
 
     def drawForeground(self, painter, rect):
-        painter.fillRect(rect, QtGui.QColor(100, 100, 0, 100))
+        painter.fillRect(rect, QColor(100, 100, 0, 100))
 
 
-class MainWindow(QtGui.QWidget):
-    def __init__(self, parent=None, f=0):
-        super(MainWindow, self).__init__(parent, f)
+class MainWindow(QWidget):
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)
         self.setFixedSize(WINDOWS_WIDTH, WINDOWS_HEIGHT)
         self.show()
 

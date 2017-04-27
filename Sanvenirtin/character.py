@@ -2,23 +2,24 @@
 # -*-coding: utf-8 -*-
 
 """
-Character class
-
+Character module
+Classes working on spirit or object defined in this module.
 """
 import random
 from function import Define as Df, log10 as lg, Pos, double_range, Calculate, sgn
-import graphics
+from PyQt5.QtCore import Qt
 from configure import SIGHT_AREA, TILE_HEIGHT, TILE_WIDTH
+import graphics
 
-key_map = {graphics.QtCore.Qt.Key_5: 0,
-           graphics.QtCore.Qt.Key_1: 1,
-           graphics.QtCore.Qt.Key_2: 2,
-           graphics.QtCore.Qt.Key_3: 3,
-           graphics.QtCore.Qt.Key_6: 4,
-           graphics.QtCore.Qt.Key_9: 5,
-           graphics.QtCore.Qt.Key_8: 6,
-           graphics.QtCore.Qt.Key_7: 7,
-           graphics.QtCore.Qt.Key_4: 8,
+key_map = {Qt.Key_5: 0,
+           Qt.Key_1: 1,
+           Qt.Key_2: 2,
+           Qt.Key_3: 3,
+           Qt.Key_6: 4,
+           Qt.Key_9: 5,
+           Qt.Key_8: 6,
+           Qt.Key_7: 7,
+           Qt.Key_4: 8,
            }
 
 character_identity = 0
@@ -52,7 +53,11 @@ class Status(object):
         self.sanity = 0
 
     def initialize(self, *args):
-        assert len(args) == 13
+        """
+        Initialize the character with args
+        :param args:
+        :return:
+        """
         self.status = args[:8]
         self.source = args[8:]
 
@@ -646,7 +651,7 @@ class Player(Character):
                 tile.setZValue(-1.1)
             else:
                 tile.setZValue(-0.9)
-            tile.next_opacity = min(1, visible + 0.01)
+            tile.next_opacity = min(1.0, visible + 0.01)
             if tile.rigid_body:
                 tile.rigid_body.next_opacity = tile.next_opacity
 

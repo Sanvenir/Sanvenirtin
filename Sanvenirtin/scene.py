@@ -1,7 +1,6 @@
 #!usr/bin/python3
 # -*-coding: utf-8 -*-
 
-import sys
 from random import randrange
 from function import double_range, save_byte, load_byte, Pos
 from graphics import Resources as Res
@@ -9,6 +8,7 @@ import graphics
 import character
 import interface
 from configure import LOCAL_SIZE, GLOBAL_HEIGHT, GLOBAL_WIDTH, TILE_WIDTH, TILE_HEIGHT, GAME_UPDATE_TIME
+from PyQt5.QtCore import Qt, QTimer
 
 map_identity = 0
 
@@ -176,7 +176,8 @@ class LocalMap(Maps):
                 scene.addItem(self.contents[x][y].rigid_body)
             elif not check2:
                 self.contents[x][y].rigid_body = character.NonePlayer(
-                    (("female", "male", "others")[randrange(3)], randrange(3)), scene, self.contents[x][y], [0], action_time=scene.current_time)
+                    (("female", "male", "others")[randrange(3)], randrange(3)), scene, self.contents[x][y], [0],
+                    action_time=scene.current_time)
                 scene.characters.append(self.contents[x][y].rigid_body)
                 scene.addItem(self.contents[x][y].rigid_body)
 
@@ -238,8 +239,8 @@ class Scene(graphics.GameScene):
     """
     Scene object -- contain a GlobalMap and temporary 3 * 3 LocalMaps
     """
-    def __init__(self, parent=None, f=0):
-        super(Scene, self).__init__(parent, f)
+    def __init__(self, parent=None):
+        super(Scene, self).__init__(parent)
         self.global_map = GlobalMap()
         self._state = None
 
@@ -265,7 +266,7 @@ class Scene(graphics.GameScene):
 
         self.game_update_end_flag = True
         self.update_end_flag = True
-        self.game_timer = graphics.QtCore.QTimer()
+        self.game_timer = QTimer()
         self.game_timer.timeout.connect(self.update_game)
         self.game_timer.start(GAME_UPDATE_TIME)
 
@@ -280,8 +281,8 @@ class Scene(graphics.GameScene):
 
         self.player.refresh()
 
-    def set_text_out(self, function):
-        self.text_out = function
+    def set_text_out(self, func):
+        self.text_out = func
 
     def create_player(self):
         self.player = character.Player(
@@ -467,7 +468,7 @@ class Scene(graphics.GameScene):
             self.control_table.get_sign()
             self.control_table = None
         elif isinstance(item, Tile):
-            if event.button() == graphics.QtCore.Qt.RightButton:
+            if event.button() == Qt.RightButton:
                 self.control_table = interface.ControlTable(
                     [("MOVE", "auto_moving"), ("OBSERVE", "attack"),
                      ("SKILL", "attack"), ("SOURCE", "attack")], event.screenPos(), item, self)
@@ -604,27 +605,3 @@ class SceneMainMap(Scene):
     @staticmethod
     def get_centre_absolute(conn):
         return Pos(conn.centre_pos.x + LOCAL_SIZE, conn.centre_pos.y + LOCAL_SIZE)
-
-
-def test1():
-    scene = Scene()
-    scene.save()
-
-
-def test2():
-    app = graphics.QtGui.QApplication(sys.argv)
-    window = graphics.MainWindow()
-    Res.ground_image = graphics.CombinePixmap("res//tiles//map//ground.png", 48, 48, 4)
-    Res.obstacle_image = graphics.CombinePixmap("res//tiles//map//obstacle.png", 48, 72, 2)
-    Res.hero_image = graphics.CombinePixmap("res//tiles//character//kirito.png", 96, 48, 8, 10)
-    Res.character_images["player"] = graphics.CombinePixmap("res//tiles//character//kirito.png", 96, 48, 8, 10)
-    Res.character_images["npc"] = graphics.CombinePixmap("res//tiles//character//human//female//0.gif", 48, 48, 1, 1)
-    scene = Scene()
-    view = graphics.GameView(scene, window)
-    view.set_center(scene.player)
-    view.show()
-    app.exec_()
-
-
-if __name__ == "__main__":
-    test2()

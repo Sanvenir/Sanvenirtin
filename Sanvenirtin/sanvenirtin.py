@@ -6,7 +6,8 @@ import sys
 import scene
 import interface
 import graphics
-from PySide import QtGui
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtWidgets import QApplication
 import os
 import re
 
@@ -26,7 +27,7 @@ def convert_resource():
     find_files("res", "png", name_list)
     for name in name_list:
         print(name)
-        res = QtGui.QImage(name)
+        res = QImage(name)
         res.save(name)
 
 
@@ -35,8 +36,10 @@ def load_resources():
         os.mkdir("sav")
     graphics.Resources.ground_image = graphics.CombinePixmap("res//tiles//map//ground.png", 48, 48, 11)
     graphics.Resources.obstacle_image = graphics.CombinePixmap("res//tiles//map//obstacle//obstacle_1.png", 48, 48, 6)
-    graphics.Resources.obstacle_images = {"forest_small": graphics.CombinePixmap("res//tiles//map//obstacle//forest_small.png", 48, 48, 6),
-                                          "forest_large": graphics.CombinePixmap("res//tiles//map//obstacle//forest_large.png", 192, 192, 4, line_count=2)}
+    graphics.Resources.obstacle_images = {"forest_small": graphics.CombinePixmap(
+        "res//tiles//map//obstacle//forest_small.png", 48, 48, 6),
+        "forest_large": graphics.CombinePixmap(
+            "res//tiles//map//obstacle//forest_large.png", 192, 192, 4, line_count=2)}
 
     graphics.Resources.character_images["male"] = []
     image_list = []
@@ -54,13 +57,13 @@ def load_resources():
     for image in image_list:
         graphics.Resources.character_images["others"].append(graphics.CombinePixmap(image, 48, 48, 1, 1))
 
-    graphics.Resources.gradient_image = QtGui.QPixmap("res//gui//gradient.png").scaled(
+    graphics.Resources.gradient_image = QPixmap("res//gui//gradient.png").scaled(
         TILE_WIDTH << 1, TILE_HEIGHT << 1)
 
 
 def sanvenirtin():
     # #convert_resource()
-    app = graphics.QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     load_resources()
     game_scene = scene.Scene()
     window = interface.GameSceneInterface(game_scene)
