@@ -57,9 +57,6 @@ def load_resources():
     for image in image_list:
         graphics.Resources.character_images["others"].append(graphics.CombinePixmap(image, 48, 48, 1, 1))
 
-    graphics.Resources.gradient_image = QPixmap("res//gui//gradient.png").scaled(
-        TILE_WIDTH << 1, TILE_HEIGHT << 1)
-
 
 def sanvenirtin():
     # #convert_resource()

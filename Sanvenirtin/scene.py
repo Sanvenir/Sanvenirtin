@@ -28,23 +28,12 @@ class Tile(graphics.DrawObject):
         self.setZValue(-3)
         self.image_width = TILE_WIDTH
         self.image_height = TILE_HEIGHT
-        self.gradient = graphics.Gradient(self)
-
-    def __del__(self):
-        del self.gradient
-        self.gradient = None
 
     def setPos(self, *args):
         super().setPos(*args)
-        self.gradient.setPos(*args)
 
     def itemChange(self, change, value):
         super().itemChange(change, value)
-        if change == self.ItemSceneChange:
-            if value is None:
-                self.scene().removeItem(self.gradient)
-            else:
-                value.addItem(self.gradient)
         return value
 
 

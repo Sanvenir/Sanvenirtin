@@ -1,35 +1,15 @@
 #!usr/bin/python3
 # -*-coding: utf-8 -*-
 
-from PyQt5.QtGui import QRadialGradient, QColor, QBrush, QPixmap, QPen
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsEllipseItem, QGraphicsPixmapItem, QGraphicsScene, QGraphicsView, \
+from PyQt5.QtGui import QColor, QBrush, QPixmap, QPen
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsEllipseItem, QGraphicsScene, QGraphicsView, \
     QWidget
-from PyQt5.QtCore import QPropertyAnimation, QPointF, QRectF, QObject, Qt
+from PyQt5.QtCore import QPointF, QRectF, QObject, Qt
 from configure import (WINDOWS_WIDTH, WINDOWS_HEIGHT, TILE_WIDTH, TILE_HEIGHT, ANIMATION_FRAME, ANIMATION_IMAGE_FRAME,
                        SCENE_WIDTH, SCENE_HEIGHT)
 
 camera_x = 0
 camera_y = 0
-
-gradient_001 = QRadialGradient(20, 50, 500, 10, 50)
-gradient_001.setColorAt(0, QColor(100, 100, 100))
-gradient_001.setColorAt(0.5, QColor(255, 255, 0))
-gradient_001.setColorAt(1, QColor(100, 100, 100))
-brush_001 = QBrush(gradient_001)
-
-gradient_002 = QRadialGradient(20, 50, 500, 10, 50)
-gradient_002.setColorAt(0, QColor(100, 100, 100))
-gradient_002.setColorAt(0.5, QColor(255, 0, 0))
-gradient_002.setColorAt(1, QColor(100, 100, 100))
-brush_002 = QBrush(gradient_002)
-
-gradient_003 = QRadialGradient(20, 50, 500, 10, 50)
-gradient_003.setColorAt(0, QColor(100, 100, 100))
-gradient_003.setColorAt(0.5, QColor(0, 255, 0))
-gradient_003.setColorAt(1, QColor(100, 100, 100))
-brush_003 = QBrush(gradient_003)
-
-gradients = [gradient_001, gradient_002, gradient_003]
 
 
 class Resources(object):
@@ -40,7 +20,6 @@ class Resources(object):
     character_images = {}
     obstacle_images = None
     ground_images = {}
-    gradient_image = None
 
 
 class CombinePixmap(object):
@@ -176,27 +155,6 @@ class Shadow(QGraphicsEllipseItem):
         self.setZValue(0)
         self.setPen(QPen(QColor(0, 0, 0, 0)))
         self.setBrush(QBrush(QColor(0, 0, 0, 100)))
-
-
-class Gradient(QGraphicsPixmapItem):
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-        self.setPixmap(Resources.gradient_image)
-
-    def setPos(self, *args):
-        super().setPos(*args)
-        self.moveBy(-TILE_WIDTH, -TILE_HEIGHT)
-
-    def paint(self, painter, option, widget):
-        next_opacity = 1.01 - self.parent.next_opacity
-        if next_opacity > self.opacity() + 0.1:
-            self.setOpacity(self.opacity() + 0.1)
-        elif next_opacity < self.opacity() - 0.1:
-            self.setOpacity(self.opacity() - 0.1)
-        else:
-            self.setOpacity(next_opacity)
-        super().paint(painter, option, widget)
 
 
 class GameScene(QGraphicsScene):
